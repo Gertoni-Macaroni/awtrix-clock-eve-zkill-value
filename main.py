@@ -166,7 +166,7 @@ async def send_display_update_payload(values, total_value, last_total_value):
         "draw": [
             *arrows[int(total_value > last_total_value)],
             *create_balance_bar_payload(values),
-            {"dt": [8 + (int(total_value > 0) * 2), 1, f'{"-" if total_value < 0 else "  "}{formatted_number_string}',
+            {"dt": [8, 1, f'{"-" if total_value < 0 else "  "}{formatted_number_string}',
                     "#ffffff"]}
         ]}
 
@@ -178,8 +178,8 @@ def create_balance_bar_payload(values):
     lost = sum(list(filter(lambda x: x < 0, values)))
     killed = sum(list(filter(lambda x: x > 0, values)))
 
-    if lost != 0 and killed != 0:
-        percentage_killed = killed / (lost + killed)
+    if lost != 0 or killed != 0:
+        percentage_killed = killed / max(lost + killed, 1)
         return [
             {"dl": [2, 7, 29, 7, "#FF0000"]},
             {"dl": [2, 7, max(math.ceil(29 * percentage_killed), 2), 7, "#00FF00"]},
