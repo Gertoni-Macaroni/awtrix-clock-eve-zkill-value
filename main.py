@@ -96,12 +96,6 @@ async def start_up():
     ),
 
 
-# Send any payload to the mqtt broker
-async def mqtt_publish(payload):
-    async with aiomqtt.Client(mqtt_host) as client:
-        await client.publish(mqtt_topic, JSONEncoder().encode(payload))
-
-
 # Permanent loop, it will attempt to reconnect if for any reason the websocket listening loop exits.
 async def setup_websocket():
     while True:
@@ -238,6 +232,12 @@ async def keepalive(websocket, ping_interval=30):
             print(f'Exception thrown while pinging websocket: <{type(e).__name__}>, "{e}"')
             print(traceback.format_exc())
             break
+
+
+# Send any payload to the mqtt broker
+async def mqtt_publish(payload):
+    async with aiomqtt.Client(mqtt_host) as client:
+        await client.publish(mqtt_topic, JSONEncoder().encode(payload))
 
 
 if __name__ == '__main__':
