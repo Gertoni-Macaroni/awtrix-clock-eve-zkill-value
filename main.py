@@ -106,6 +106,7 @@ async def mqtt_publish(payload):
 async def setup_websocket():
     while True:
         await listen_to_websocket()
+        print('-- Connection with websocket dropped, attempting to reconnect in 60 seconds')
         await asyncio.sleep(reconnect_interval_seconds)
 
 
