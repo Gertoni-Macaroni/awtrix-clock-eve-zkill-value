@@ -142,8 +142,12 @@ async def consume(message):
     response = requests.get(f'{kill_api_base}/{message['killID']}/')
     kill_value = int(response.json()[0]['zkb']['totalValue'])
 
-    if message["alliance_id"] == corp_id:
-        kill_value *= -1
+    if corp_id is not None:
+        if message["corporation_id"] == corp_id:
+            kill_value *= -1
+    elif alliance_id is not None:
+        if message["alliance_id"] == alliance_id:
+            kill_value *= -1
 
     print(f'-- Consuming killmail ID: {message['killID']} with value: {str(kill_value)}')
 
@@ -175,17 +179,14 @@ async def send_display_update_payload(values, total_value, last_total_value):
 
 # Creates a kill/loss balance bar to be part of the display payload
 def create_balance_bar_payload(values):
-    lost = sum(list(filter(lambda x: x < 0, values)))
-    killed = sum(list(filter(lambda x: x > 0, values)))
+    lost = abs(sum(list(filter(lambda x: x < 0, values))))
+    killed = abs(sum(list(filter(lambda x: x > 0, values))))
 
-    if lost != 0 or killed != 0:
-        percentage_killed = killed / max(lost + killed, 1)
-        return [
-            {"dl": [2, 7, 29, 7, "#FF0000"]},
-            {"dl": [2, 7, max(math.ceil(29 * percentage_killed), 2), 7, "#00FF00"]},
-        ]
-    else:
-        return []
+    percentage_killed = killed / (lost + killed) if lost + killed else 0 # Hacky divide by zero fix
+    return [
+        {"dl": [2, 7, 29, 7, "#FF0000"]},
+        {"dl": [2, 7, max(math.ceil(29 * percentage_killed), 2), 7, "#00FF00" if killed != 0 else "#FF0000"]},
+    ]
 
 
 # Updates the display if the previous values differ
