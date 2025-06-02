@@ -133,7 +133,7 @@ async def consume_handler(websocket):
 
 # Consumes each message and updates the display
 async def consume(message):
-    response = requests.get(f'{kill_api_base}/{message['killID']}/')
+    response = requests.get(f'{kill_api_base}/{message["killID"]}/')
     kill_value = int(response.json()[0]['zkb']['totalValue'])
 
     if corp_id is not None:
@@ -143,11 +143,11 @@ async def consume(message):
         if message["alliance_id"] == alliance_id:
             kill_value *= -1
 
-    print(f'-- Consuming killmail ID: {message['killID']} with value: {str(kill_value)}')
+    print(f'-- Consuming killmail ID: {message["killID"]} with value: {str(kill_value)}')
 
     try:
         valkey_db = valkey.asyncio.client.Valkey(host=valkey_host, port=valkey_port, db=0)
-        await valkey_db.set(f'killmail:{message['killID']}', kill_value, tracking_duration_seconds)
+        await valkey_db.set(f'killmail:{message["killID"]}', kill_value, tracking_duration_seconds)
         await valkey_db.aclose()
     except Exception as e:
         print(f'Exception thrown while consuming websocket message: <{type(e).__name__}>, "{e}"')
