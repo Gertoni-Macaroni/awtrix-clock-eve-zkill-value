@@ -106,6 +106,7 @@ async def setup_websocket():
 
 # Sets up the websocket and sends the subscribe message to zKill
 async def listen_to_websocket():
+    keepalive_task = None
     try:
         async with websockets.connect(websocket_base) as websocket:
             keepalive_task = asyncio.create_task(keepalive(websocket))
